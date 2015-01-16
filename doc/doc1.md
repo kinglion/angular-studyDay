@@ -75,7 +75,6 @@ if (person.gender == 1)
 $scope.formatGender = function(gender) {
     if (gender == 0)
         return "女";
-
     if (gender == 1)
         return "男";
     }

@@ -64,7 +64,6 @@ var tom = {
 ```JavaScript
 if (person.gender == 0)
     person.genderText = "女";
-
 if (person.gender == 1)
     person.genderText = "男";
 ```

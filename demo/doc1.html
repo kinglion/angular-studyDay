@@ -17,5 +17,38 @@
 		<br/><br/>
 		<input type="text" ng-model="b"/>
 	</section>
+	<section>
+		<h3>单向绑定的另一种方式</h3>
+		<input ng-model="a"/>
+		<br/>
+		<div>{{a}}</div>
+		<br/>
+		<div ng-bind="a"></div>
+	</section>
+	<section ng-controller="PhoneListCtrl">
+		<h3>表达式中使用函数</h3>
+		<script>
+			function PhoneListCtrl($scope) {
+			  	$scope.tom = [{
+			  		name: "Tom",
+			    	gender: 1
+			    },{
+			    	name: "Girl",
+			    	gender: 0
+			    }];
+				$scope.formatGender = function(gender) {
+				    if (gender == 0)
+				        return "女";
+
+				    if (gender == 1)
+				        return "男";
+				};
+			}
+		</script>
+		<select ng-model="query" ng-options="m.gender as m.name for m in tom">
+		</select>
+		<br/><br/>
+		<div>{{formatGender(query)}}</div>
+	</section>
 </body>
 </html>

@@ -27,3 +27,74 @@ window.a = 1;
 ```
 在AngularJS里，变量和表达式都附着在一种叫做作用域（scope）的东西上，可以自己声明新的作用域，也可以不声明。每个Angular应用默认会有一个根作用域（$rootScope），凡是没有预先声明的东西，都会被创建到它上面去。
 作用域的相关概念，我们会在下一章里面讲述。在这里，我们只需要知道，如果在界面中绑定了未定义的某变量，当它被赋值的时候，就会自动创建到对应的作用域上去。
+前面我们在例子中提到的{{}}这种符号，称为插值表达式，这里面的内容将会被动态解析，也可以不使用这种方式来进行绑定，Angular另有一个ng-bind指令用于做这种事情：
+```HTML
+<input ng-model="a"/>
+<div>{{a}}</div>
+<div ng-bind="a"></div>
+```
+### 对模型的二次计算
+嗯，有时候，实际情况没有这么简单，比如说，我们可能会需要对数据作一点处理，比如，在每个表示价格的数字后面添加一个单位：
+```HTML
+<input type="number" ng-model="price"/>
+<span>{{price + "（元）"}}</span>
+```
+当然我们这个例子并不好，因为，其实你可以把无关的数据都放在绑定表达式的外面，就像这样：
+```HTML
+<input type="number" ng-model="price"/>
+<span>{{price}}（元）</span>
+```
+那么，考虑个稍微复杂一些的。我们经常会遇到，在界面上展示性别，但是数据库里面存的是0或者1，那么，总要对它作个转换。有些比较老土的做法是这样，在模型上添加额外的字段给显示用：
+这是原始数据：
+```JavaScript
+var tom = {
+    name: "Tom",
+    gender: 1
+};
+```
+被他转换之后，成了这样：
+```JavaScript
+var tom = {
+    name: "Tom",
+    gender: 1,
+    genderText: "男"
+};
+```
+转换函数内容如下：
+```JavaScript
+if (person.gender == 0)
+    person.genderText = "女";
+
+if (person.gender == 1)
+    person.genderText = "男";
+```
+这样的做法虽然能够达到效果，但破坏了模型的结构，我们可以做些改变：
+```HTML
+<div>{{formatGender(tom.gender)}}</div>
+```
+```JavaScript
+$scope.formatGender = function(gender) {
+    if (gender == 0)
+        return "女";
+
+    if (gender == 1)
+        return "男";
+    }
+};
+```
+这样我们就达到了目的。这个例子让我们发现，原来，在绑定表达式里面，是可以使用函数的。像我们这里的格式化函数，其实作用只存在于视图层，所以不会影响到真实数据模型。
+注意：这里有两个注意点。
+第一，在绑定表达式里面，只能使用自定义函数，不能使用原生函数。举个例子：
+```HTML
+<div>{{Math.abs(-1)}}</div>
+```
+这句就是有问题的，因为Angular的插值表达式机制决定了它不能使用这样的函数，它是直接用自己的解释器去解析这个字符串的，如果确实需要调用原生函数，可以用一个自定义函数作包装，在自定义函数里面可以随意使用各种原生对象，就像这样：
+```HTML
+<div>{{abs(-1)}}</div>
+```
+```JavaScript
+$scope.abs = function(number) {
+    return Math.abs(number);    
+};
+```
+第二，刚才我们这个例子只是为了说明可以这么用，但不表示这是最佳方案。Angular为这类需求提供了一种叫做filter的方案，可以在插值表达式中使用管道操作符来格式化数据，这个我们后面再细看。
